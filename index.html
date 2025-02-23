@@ -1,0 +1,639 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Простейшая нейронная сеть</title>
+    <style>
+        canvas {
+            border: 1px solid #000;
+        }
+        body {
+
+            width:100%;
+            text-align:center;
+            margin:0;
+        }
+    </style>
+</head>
+<body>
+
+<div style="text-align:center;position:fixed;top:20px;margin:auto;left:20px;z-index:20;">
+    <button id="learn">Обучение</button>
+    &nbsp;&nbsp;
+    <button id="deploy">Эксплуатация</button>
+    &nbsp;&nbsp;
+    <button id="erase">Стереть</button>
+    &nbsp;&nbsp;
+    <button id="save" style="display:none;">Обучить</button>
+</div>
+<div id="canvasContainer" style="display:inline-block;position:relative;">
+    <canvas id="canvas" style="border:none;position:relative;margin-top:50px;margin-left:20px;"></canvas>
+</div>
+
+
+<script>
+    const canvasContainer = document.getElementById("canvasContainer");
+    const deployButton = document.getElementById("deploy");
+    const saveButton = document.getElementById("save");
+    const eraseButton = document.getElementById("erase");
+    const learnButton = document.getElementById("learn");
+    const canvas = document.getElementById("canvas");
+    var regim = "start";
+    let nn = {};
+    nn["l1"] = {};
+    nn["l2"] = {};
+    nn["learn"] = 0;
+
+    let draw_width = 10;
+    let draw_height = 10;
+    let draw_pixel = 20;
+    let canvas_width = 60;
+    let canvas_height = 8 * draw_width * draw_width / 20;
+
+    canvas.height = canvas_height * draw_pixel;
+    const context = canvas.getContext("2d");
+    let isDrawing = false;
+    let nn_first_height = 8 * draw_width * draw_width;
+    let nn_first_x = draw_width * draw_pixel + 150;
+    let nn_first_y = 10;
+    canvas.height = nn_first_height + 40;
+    let old_x = 0;
+    let old_y = 0;
+
+    let num_l2 = 2;
+    let nn_out_x = nn_first_x + 400;
+    let nn_out_y = nn_first_height / 2;
+    let nn_out_radius = 30;
+    let inputElements = [];
+    let show_first_lines = true;
+    let show_all_dots = true;
+    let nnfirstclick = false;
+    let nnfirstdraw = false;
+
+    canvas.addEventListener("click", function(event) {
+        var rect = canvas.getBoundingClientRect();
+        var mouseX = event.clientX - rect.left;
+        var mouseY = event.clientY - rect.top;
+        if (regim == "learn") {
+            //console.log(mouseX + " " + mouseY);
+            for (let i = 1; i <= num_l2; i += 1) {
+                var distanceSquared = (mouseX - nn["l2"]["x" + i].x) ** 2 + (mouseY - nn["l2"]["x" + i].y) ** 2;
+                if (distanceSquared <= nn_out_radius ** 2) {
+                    saveButton.style.display = "inline";
+                    saveButton.style.background = "green";
+                    saveButton.style.color = "white";
+                    context.beginPath();
+                    for (let j = 1; j <= num_l2; j += 1) {
+                        if (nn["l2"]["x" + j].learn){
+                            //context.fillStyle = "#FFFFFF90";
+                            context.strokeStyle = "#888";
+                            context.lineWidth = 6;
+                            //context.fillStyle = "#fff";
+                            context.arc(nn["l2"]["x" + j].x, nn["l2"]["x" + j].y, nn_out_radius, 0, 2 * Math.PI);
+                            //context.fill();
+                            context.stroke();
+                            //context.fill();
+                            nn["l2"]["x" + j].learn = false;
+                        }
+                    }
+                    context.closePath();
+                    context.beginPath();
+                    context.strokeStyle = "green";
+                    context.lineWidth = 6;
+                    //context.fillStyle = "#00FF0080";
+                    context.arc(nn["l2"]["x" + i].x, nn["l2"]["x" + i].y, nn_out_radius, 0, 2 * Math.PI);
+                    //context.fill();
+                    context.stroke();
+                    context.closePath();
+                    nn["l2"]["x" + i].learn = true;
+                    nn["learn"] = i;
+                    //alert("Теперь рисуйте картинки для выбранного нейрона и после каждой картинки нажимайте \"Обучить\".");
+                    if (!nnfirstclick){
+                        nnfirstclick = true;
+                        nnfirstdraw = true;
+                        var alertElement2 = Object.assign(document.createElement('div'), { style: 'font-size:24px;font-weight:bold;color:green;text-align:left;position:absolute;top:' + ((nn_first_height / 2) - (draw_height * draw_pixel / 2)) + "px; left: " + (30) + "px;"});
+                        alertElement2.innerHTML = "&darr; Теперь рисуйте картинки для выбранного нейрона и после каждой картинки нажимайте кнопку \"обучить\"";
+                        canvasContainer.appendChild(alertElement2);
+                        setTimeout(() => {
+                            alertElement2.remove();
+                            var alertElement = Object.assign(document.createElement('div'), { style: 'font-size:24px;font-weight:bold;color:green;text-align:left;position:absolute;top:' + (70) + "px; left: " + (300) + "px;"});
+                            alertElement.innerHTML = " &uarr; Нажимайте \"Обучить\" и рисуйте дальше.<br>Как закончите обучение нейрона, выберите другой нейрон и рисуйте для него.<br>После завершения обучения нажмите на \"Эксплуатация\"";
+                            document.body.appendChild(alertElement);
+                            setTimeout(() => {alertElement.remove();}, 10000);
+                        }, 5000);
+                    }
+                }
+            }
+        }
+    });
+
+    document.addEventListener("DOMContentLoaded", function () {
+        canvas.width = nn_out_x + 200;
+
+        var alertElement = Object.assign(document.createElement('div'), { style: 'font-size:24px;font-weight:bold;color:green;text-align:center;position:absolute;top:' + (50) + "px; left: " + (30) + "px;"});
+        alertElement.innerHTML = " &uarr; Нажмите на Обучение и введите параметры НН";
+        document.body.appendChild(alertElement);
+        setTimeout(() => {
+            alertElement.remove();
+
+        }, 5000);
+
+        learnButton.addEventListener("click", function() {
+            if (nn["learn"] == 1) {
+                location.reload();
+                return;
+            }
+
+            learnButton.disabled = true;
+            num_l2 = prompt("Введите число выходных нейронов:", "2");
+            draw_width = Math.floor(Math.sqrt(prompt("Введите число входных нейронов:", "100")));
+            draw_height = draw_width;
+            canvas_height = 8 * draw_width * draw_width / 20;
+            nn_first_height = 8 * draw_width * draw_width;
+            canvas.height = nn_first_height + 40;
+            nn_first_x = draw_width * draw_pixel + 150;
+            nn_first_y = 10;
+            old_x = 0;
+            old_y = 0;
+            nn_out_x = nn_first_x + 400;
+            nn_out_y = nn_first_height / 2;
+            nn_out_radius = 30;
+
+            inputElements.forEach(function(inputElement) {
+                inputElement.remove();
+            })
+            inputElements = [];
+
+            context.clearRect(0, 0, nn_out_x - nn_out_radius/2 - 20, canvas.height);
+            context.clearRect(nn_out_x + nn_out_radius + 5, 0, canvas.width, canvas.height);
+            nn["l2"] = {};
+            drawGrid(0, (nn_first_height / 2) - (draw_height * draw_pixel / 2));
+            drawNeuron(draw_width * draw_pixel + 150, 20, 3, num_l2);
+            regim = "learn";
+            learnButton.style.background = "green";
+            learnButton.style.color = "white";
+            deployButton.style.background = "grey";
+            deployButton.style.color = "white";
+            //alert("Кликните на выходной нейрон для его обучения. ВАЖНО!!! Кликнуть надо вне области ввода данных!");
+            var alertElement = Object.assign(document.createElement('div'), { style: 'font-size:20px;font-weight:bold;color:green;text-align:left;position:absolute;top:' + (nn_out_y) + "px; left: " + (nn_out_x + nn_out_radius/2 + 20) + "px;"});
+            alertElement.innerHTML = " <-- Кликните на выходной нейрон, который хотите обучить.<br>Так же для удобства можете нарисовать на нём изображение, которым будете его обучать.";
+            canvasContainer.appendChild(alertElement);
+            setTimeout(() => {alertElement.remove();}, 10000);
+
+        });
+
+        deployButton.addEventListener("click", function() {
+            if (nn["learn"] == 0 ) {
+                alert("Сначала обучите модель");
+                return;
+            }
+            learnButton.disabled = false;
+            saveButton.style.display = "none";
+            //alert("Нарисуйте картинку и нейросеть покажет, как она это видит");
+            var alertElement = Object.assign(document.createElement('div'), { style: 'font-size:24px;font-weight:bold;color:green;text-align:center;position:absolute;top:' + (200) + "px; left: " + (20) + "px;"});
+            alertElement.innerHTML = "Нарисуйте картинку и нейросеть определит её основываясь на обучающей выборке.";
+            document.body.appendChild(alertElement);
+            setTimeout(() => {alertElement.remove();}, 5000);
+            regim = "deploy";
+            deployButton.style.background = "green";
+            deployButton.style.color = "white";
+            learnButton.style.background = "grey";
+            learnButton.style.color = "white";
+            erase();
+
+            if (num_l2==1){
+                for (let i = 1; i <= draw_width * draw_height; i += 1) {
+                    if (nn["l2"]["x" + 1]["x" + i] > 0){
+                        if (show_all_dots){
+                            context.beginPath();
+                            context.fillStyle = "#0000FF" + (10 + 5*nn["l2"]["x" + 1]["x" + i]);
+                            context.fillRect(nn["l1"]["x" + i]["x" + 0], nn["l1"]["x" + i]["y" + 0], draw_pixel, draw_pixel);
+                            context.closePath();
+                        }
+                        context.strokeStyle = "#0000FF" + (60);
+                        if (show_first_lines) {
+                            for(let q = 1; q <= nn.l2["x" + 1]["x" + i]; q += 1){
+                                context.beginPath();
+                                context.lineWidth = q;
+                                context.moveTo(nn["l1"]["x" + i]["x" + 0] + draw_pixel/2, nn["l1"]["x" + i]["y" + 0] + draw_pixel/2);
+                                context.lineTo(nn["l1"]["x" + i].x, nn["l1"]["x" + i].y);
+                                context.stroke();
+                                context.closePath();
+                            }
+                        }
+                    }
+                }
+            }
+        });
+
+        function learn(){
+            for (let i = 1; i <= draw_width * draw_height; i += 1) {
+                if (("x" + i) in nn["l2"]["x" + nn["learn"]]) {
+                } else {
+                    nn["l2"]["x" + nn["learn"]]["x" + i] = 0;
+                }
+                if (nn["l1"]["x" + i].w == 1){
+                    context.beginPath();
+                    context.moveTo(nn["l1"]["x" + i].x + 5, nn["l1"]["x" + i].y);
+                    context.lineTo(nn["l2"]["x" + nn["learn"]].x - nn_out_radius - 2, nn["l2"]["x" + nn["learn"]].y);
+                    context.strokeStyle = "blue";
+                    context.lineWidth = 1;
+                    context.stroke();
+                    context.closePath();
+
+                    nn["l2"]["x" + nn["learn"]]["x" + i] = nn["l2"]["x" + nn["learn"]]["x" + i] + 1;
+
+                }
+            }
+
+            context.clearRect(0, 0, nn_out_x - nn_out_radius/2 - 20, canvas.height);
+            context.clearRect(nn_out_x + nn_out_radius + 5, 0, canvas.width, canvas.height);
+            drawGrid(0, (nn_first_height / 2) - (draw_height * draw_pixel / 2));
+            drawNeuron(draw_width * draw_pixel + 150, 20, 3, num_l2);
+
+            if (num_l2==1){
+                for (let i = 1; i <= draw_width * draw_height; i += 1) {
+                    if (nn["l2"]["x" + 1]["x" + i] > 0){
+                        if (show_all_dots){
+                            context.beginPath();
+                            context.fillStyle = "#0000FF" + (10 + 5*nn["l2"]["x" + 1]["x" + i]);
+                            context.fillRect(nn["l1"]["x" + i]["x" + 0], nn["l1"]["x" + i]["y" + 0], draw_pixel, draw_pixel);
+                            context.closePath();
+                        }
+                        context.strokeStyle = "#0000FF" + (60);
+                        if (show_first_lines) {
+                            for(let q = 1; q <= nn.l2["x" + 1]["x" + i]; q += 1){
+                                context.beginPath();
+                                context.lineWidth = q;
+                                context.moveTo(nn["l1"]["x" + i]["x" + 0] + draw_pixel/2, nn["l1"]["x" + i]["y" + 0] + draw_pixel/2);
+                                context.lineTo(nn["l1"]["x" + i].x, nn["l1"]["x" + i].y);
+                                context.stroke();
+                                context.closePath();
+                            }
+                        }
+                    }
+                }
+            }
+
+            /*context.beginPath();
+            context.fillStyle = "#00FF0080";
+            context.arc(nn["l2"]["x" + nn["learn"]].x, nn["l2"]["x" + nn["learn"]].y, nn_out_radius, 0, 2 * Math.PI);
+            context.fill();
+            context.closePath();*/
+            for (let j = 1; j <= num_l2; j += 1) {
+                nn["l2"]["x" + j].w = 0;
+                for (let i = 1; i <= draw_width * draw_height; i += 1) {
+                    nn["l2"]["x" + j].w = nn["l2"]["x" + j].w + nn["l2"]["x" + j]["x" + i];
+                    if (nn["l2"]["x" + j]["x" + i] > 0){
+                        for (let k = 1; k <= nn["l2"]["x" + j]["x" + i]; k += 1) {
+                            context.beginPath();
+                            context.moveTo(nn["l1"]["x" + i].x + 5, nn["l1"]["x" + i].y);
+                            context.lineTo(nn["l2"]["x" + j].x - nn_out_radius - 2, nn["l2"]["x" + j].y);
+                            context.strokeStyle = "#0000FF" + (60);
+                            context.lineWidth = 0 + k * 1;
+                            context.stroke();
+                            context.closePath();
+                        }
+
+                        context.beginPath();
+                        context.font = "14px Arial";
+                        context.fillStyle = "green";
+                        context.textAlign = "center";
+                        var randomNum = Math.floor(Math.random() * 101) - 50;
+                        var a = (nn["l2"]["x" + j].x - nn["l1"]["x" + i].x)/(-nn["l1"]["x" + i].y + nn["l2"]["x" + j].y);
+
+                        context.fillText(nn["l2"]["x" + j]["x" + i], nn["l1"]["x" + i].x + (nn["l2"]["x" + j].x - nn["l1"]["x" + i].x)/2 + randomNum, nn["l1"]["x" + i].y + (-nn["l1"]["x" + i].y + nn["l2"]["x" + j].y)/2 + randomNum/a);
+                        context.closePath();
+                    }
+                }
+                //console.log(nn["l2"]["x" + j].w);
+                context.font = "18px Arial";
+                context.fillStyle = "blue";
+                context.textAlign = "left";
+                context.fillText(nn["l2"]["x" + j].w, nn["l2"]["x" + j].x + nn_out_radius + 20, nn["l2"]["x" + j].y);
+            }
+        }
+
+        saveButton.addEventListener("click", function() {
+            learn();
+        });
+
+        eraseButton.addEventListener("click", function() {
+            erase();
+        });
+
+        function erase() {
+            context.clearRect(0, 0, nn_out_x - nn_out_radius/2 - 20, canvas.height);
+            context.clearRect(nn_out_x + nn_out_radius + 5, 0, canvas.width, canvas.height);
+            drawGrid(0, (nn_first_height / 2) - (draw_height * draw_pixel / 2));
+            drawNeuron(draw_width * draw_pixel + 150, 20, 3, num_l2);
+            context.beginPath();
+            //context.fillStyle = "#00FF0080";
+            context.strokeStyle = "#888";
+            context.lineWidth = 6;
+            context.arc(nn["l2"]["x" + nn["learn"]].x, nn["l2"]["x" + nn["learn"]].y, nn_out_radius, 0, 2 * Math.PI);
+            //context.fill();
+            context.stroke();
+            context.closePath();
+            for (let j = 1; j <= num_l2; j += 1) {
+                nn["l2"]["x" + j].input = 0;
+                for (let i = 1; i <= draw_width * draw_height; i += 1) {
+                    if (nn["l2"]["x" + j]["x" + i] > 0){
+                        //console.log("learn");
+                        for (let k = 1; k <= nn["l2"]["x" + j]["x" + i]; k += 1) {
+                            context.beginPath();
+                            context.moveTo(nn["l1"]["x" + i].x + 5, nn["l1"]["x" + i].y);
+                            context.lineTo(nn["l2"]["x" + j].x - nn_out_radius - 2, nn["l2"]["x" + j].y);
+                            context.strokeStyle = "#0000FF" + (60);
+                            context.lineWidth = 0 + k * 1;
+                            context.stroke();
+                            context.closePath();
+                        }
+                    }
+                }
+                context.font = "18px Arial";
+                context.fillStyle = "blue";
+                context.textAlign = "left";
+                context.fillText(nn["l2"]["x" + j].w, nn["l2"]["x" + j].x + nn_out_radius + 10, nn["l2"]["x" + j].y );
+            }
+
+            if (num_l2==1){
+                for (let i = 1; i <= draw_width * draw_height; i += 1) {
+                    if (nn["l2"]["x" + 1]["x" + i] > 0){
+                        if (show_all_dots){
+                            context.beginPath();
+                            context.fillStyle = "#0000FF" + (10 + 5*nn["l2"]["x" + 1]["x" + i]);
+                            context.fillRect(nn["l1"]["x" + i]["x" + 0], nn["l1"]["x" + i]["y" + 0], draw_pixel, draw_pixel);
+                            context.closePath();
+                        }
+                        context.strokeStyle = "#0000FF" + (60);
+                        if (show_first_lines) {
+                            for(let q = 1; q <= nn.l2["x" + 1]["x" + i]; q += 1){
+                                context.beginPath();
+                                context.lineWidth = q;
+                                context.moveTo(nn["l1"]["x" + i]["x" + 0] + draw_pixel/2, nn["l1"]["x" + i]["y" + 0] + draw_pixel/2);
+                                context.lineTo(nn["l1"]["x" + i].x, nn["l1"]["x" + i].y);
+                                context.stroke();
+                                context.closePath();
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        function startDrawing(e) {
+            isDrawing = true;
+            draw(e);
+        }
+
+        function stopDrawing() {
+            isDrawing = false;
+            context.beginPath();
+            old_x = 0;
+            old_y = 0;
+        }
+
+        function drawOut(num){
+            let x = nn_out_x;
+            let y = nn_out_y;
+            context.beginPath();
+            for (let i = 1; i <= num; i += 1) {
+                context.lineWidth = 6;
+                context.arc(x, y, nn_out_radius, 0, 2 * Math.PI);
+                context.strokeStyle = "#888";
+                context.stroke();
+            }
+            context.closePath();
+
+        }
+
+        function drawLink(x,y){
+            let nn_key = ((y - (nn_first_height / 2) + (draw_height * draw_pixel / 2)) / draw_pixel) *  draw_height + x / draw_pixel + 2;
+            //console.log(nn_key);
+            startX = x + draw_pixel / 2;
+            startY = y + draw_pixel / 2;
+            endX = nn_first_x;
+            endY = nn_key * 8 + 2;
+            context.beginPath();
+            context.moveTo(startX, startY);
+            context.lineTo(endX, endY);
+            context.lineWidth = 1;
+            if ( regim == "learn" && num_l2==1)
+                context.strokeStyle = "#0000FF60";
+            else if ( regim == "deploy" && num_l2==1){
+                context.strokeStyle = "green";
+                context.lineWidth = nn["l2"]["x" + 1]["x" + (nn_key - 1)];
+            } else if ( regim == "deploy") {
+                context.strokeStyle = "#0000FF01";
+            } else context.strokeStyle = "#999";
+            context.stroke();
+
+            context.lineWidth = 2;
+            context.beginPath();
+            context.fillStyle = "red";
+            context.strokeStyle = "red";
+            context.fillRect(endX, endY - 2, 4, 4);
+            context.strokeRect(endX, endY - 2, 4, 4);
+            context.stroke();
+            context.closePath();
+
+            if (regim == "deploy") context.clearRect(nn_out_x + nn_out_radius + 5, 0, canvas.width, canvas.height);
+
+            for (let i = 1; i <= num_l2; i += 1) {
+                context.beginPath();
+                context.moveTo(endX + 5, endY);
+                context.lineTo(nn["l2"]["x" + i].x - nn_out_radius - 2, nn["l2"]["x" + i].y);
+                if (nn["learn"] == i) context.strokeStyle = "#0000FF" + (60);
+                else context.strokeStyle = "#999";
+                context.lineWidth = 1;
+                if ( regim == "deploy") {
+                    //console.log(nn["l2"]["x" + i]["x" + (nn_key - 1)]);
+                    if (nn["l2"]["x" + i]["x" + (nn_key - 1)] > 0 ) context.strokeStyle = "green";
+                    else context.strokeStyle = "#999";
+                    context.lineWidth = nn["l2"]["x" + i]["x" + (nn_key - 1)];
+
+                    //context.clearRect(nn["l2"]["x" + i].x - nn_out_radius, nn["l2"]["x" + i].y - nn_out_radius - 25, 150, 25);
+                    nn["l2"]["x" + i].input = nn["l2"]["x" + i].input + nn["l2"]["x" + i]["x" + (nn_key - 1)];
+                    context.font = "18px Arial";
+                    context.fillStyle = "green";
+                    context.textAlign = "left";
+                    context.fillText(nn["l2"]["x" + i].input + " из " + nn["l2"]["x" + i].w + " = " + Math.floor(100 * nn["l2"]["x" + i].input/nn["l2"]["x" + i].w) + "%", nn["l2"]["x" + i].x + nn_out_radius + 10, nn["l2"]["x" + i].y);
+                }
+
+                context.stroke();
+                context.closePath();
+            }
+
+        }
+
+        function draw(e) {
+            if (!isDrawing) return;
+            //const currentX = e.clientX - canvas.offsetLeft;
+            //const currentY = e.pageY - canvas.offsetTop;
+            const currentX = e.clientX - canvas.getBoundingClientRect().left;
+            const currentY = e.pageY - canvas.getBoundingClientRect().top;
+
+            if (currentX < draw_width * draw_pixel && currentY >= ((nn_first_height / 2) - (draw_height * draw_pixel / 2))  && currentY < ((nn_first_height / 2) + (draw_height * draw_pixel / 2))){
+                if (nnfirstdraw){
+                    nnfirstdraw = false;
+
+                }
+                //console.log(currentX);
+                let correct_x = Math.floor ( currentX / draw_pixel ) * draw_pixel;
+                //let correct_y = Math.floor ( currentY / draw_pixel ) * draw_pixel;
+
+                let correct_y = (nn_first_height / 2) + (draw_height * draw_pixel / 2) + draw_pixel * Math.floor((currentY - (nn_first_height / 2) - (draw_height * draw_pixel / 2))/draw_pixel);
+
+                let nn_key = ((correct_y - (nn_first_height / 2) + (draw_height * draw_pixel / 2)) / draw_pixel) *  draw_height + correct_x / draw_pixel + 1;
+                //console.log(correct_x + " " + correct_y + " " + nn_key + " " + nn_first_height + " " + (correct_y - (nn_first_height / 2) + (draw_height * draw_pixel / 2)) / draw_pixel);
+                if (nn["l1"]["x" + nn_key].w != 1) {
+                    context.beginPath();
+                    context.strokeStyle = "#000";
+                    context.fillStyle = "#000";
+                    nn["l1"]["x" + nn_key].w = 1;
+                    context.fillRect(correct_x, correct_y, draw_pixel, draw_pixel);
+                    context.closePath();
+                    drawLink(correct_x, correct_y);
+                }
+            } else {
+                context.beginPath();
+                context.strokeStyle = "blue";
+                context.lineWidth = 4;
+                if (old_x == 0 && old_y == 0 ) {
+                    old_x = currentX;
+                    old_y = currentY;
+                }
+                context.moveTo(old_x, old_y);
+                context.lineTo(currentX, currentY);
+                context.stroke();
+
+
+                context.closePath();
+                old_x = currentX;
+                old_y = currentY;
+            }
+        }
+
+        function drawGrid(pos_x,pos_y=0) {
+            // Рисование вертикальных линий
+            for (let x = pos_x; x <= pos_x + draw_width * draw_pixel; x += draw_pixel) {
+                //console.log(x);
+                context.beginPath();
+                context.strokeStyle = "#888";
+                context.moveTo(x, pos_y);
+                context.lineTo(x, pos_y + draw_height * draw_pixel);
+                context.stroke();
+            }
+
+            // Рисование горизонтальных линий
+            for (let y = pos_y; y <= pos_y + draw_height * draw_pixel; y += draw_pixel) {
+                //console.log(y);
+                context.beginPath();
+                context.strokeStyle = "#888";
+                context.moveTo(pos_x, y);
+                context.lineTo(draw_width * draw_pixel + pos_x, y);
+                context.stroke();
+            }
+            context.beginPath();
+        }
+
+        function drawNeuron(pos_x, pos_y, n_height, num_l2) {
+
+            startX = draw_width * draw_pixel;
+            startY = (canvas_height * draw_pixel / 2) - (draw_height * draw_pixel / 2);
+            endY = nn_first_y;
+
+
+            let x = nn_out_x;
+            let y = canvas.height / 2  - ((2*nn_out_radius)*num_l2 + (40*(num_l2 - 1)))/2;
+            //console.log((2*nn_out_radius)*num_l2 + (40*(num_l2 - 1)));
+
+            //for (var i = 0; i < inputElements.length; i++) {
+                //inputElements[i].remove();
+            //}
+
+            for (let i = 1; i <= num_l2; i += 1) {
+
+                if (("x" + i) in nn["l2"]){} else {
+
+                    context.beginPath();
+                    context.lineWidth = 6;
+                    context.strokeStyle = "#888";
+                    context.arc(x, y, nn_out_radius, 0, 2 * Math.PI);
+
+                    context.stroke();
+                    context.closePath();
+
+                    nn["l2"]["x" + i] = {};
+                    nn["l2"]["x" + i].x = x;
+                    nn["l2"]["x" + i].y = y;
+                    nn["l2"]["x" + i].w = 0;
+                    nn["l2"]["x" + i].input = 0;
+                    /*if (typeof inputElements[i] !== 'undefined' && inputElements[i] !== null) {} else {
+                        var inputElement = Object.assign(document.createElement('input'), { style: 'font-weight:bold;color:green;text-align:center;width:40px;position:absolute;top:' + (y + 40) + "px; left: " + (x - nn_out_radius + 25) + "px;"});
+                        inputElement.value = i;
+                        document.body.appendChild(inputElement);
+                        inputElements[i] = inputElement;
+                    }*/
+                }
+
+                y = y + 100;
+            }
+
+            for (let y = 1; y <= draw_height; y+= 1) {
+                for (let x = 1; x <= draw_width; x+= 1) {
+                    startX = (x * draw_pixel);
+                    startY = (y * draw_pixel) + (nn_first_height / 2) - (draw_height * draw_pixel / 2);
+                    endX = nn_first_x;
+                    endY = endY + 8;
+
+                    context.beginPath();
+                    context.moveTo(startX - draw_pixel / 2, startY - draw_pixel / 2 );
+                    context.lineTo(endX, endY);
+                    context.strokeStyle = "#ddd";
+                    context.lineWidth = 1;
+                    context.stroke();
+
+                    context.strokeStyle = "green";
+                    context.lineWidth = 1;
+                    context.beginPath();
+                    context.strokeRect(endX, endY - 2, 4, 4);
+                    context.strokeStyle = "green";
+                    context.stroke();
+                    context.closePath();
+
+                    nn["l1"]["x" + ((y - 1)*draw_height + x)] = {};
+                    nn["l1"]["x" + ((y - 1)*draw_height + x)].x = endX;
+                    nn["l1"]["x" + ((y - 1)*draw_height + x)].y = endY;
+                    nn["l1"]["x" + ((y - 1)*draw_height + x)]["x0"] = startX - draw_pixel;
+                    nn["l1"]["x" + ((y - 1)*draw_height + x)]["y0"] = startY - draw_pixel;
+                    nn["l1"]["x" + ((y - 1)*draw_height + x)].w = 0;
+
+                    for (let i = 1; i <= num_l2; i += 1) {
+                        context.beginPath();
+                        context.moveTo(endX + 5, endY);
+                        context.lineTo(nn["l2"]["x" + i].x - nn_out_radius - 2, nn["l2"]["x" + i].y);
+                        context.strokeStyle = "#ddd";
+                        context.lineWidth = 1;
+                        context.stroke();
+                    }
+
+                }
+            }
+        }
+
+        drawGrid(0, (nn_first_height / 2) - (draw_height * draw_pixel / 2));
+        drawNeuron(draw_width * draw_pixel + 150, 20, 3, num_l2);
+        //drawOut();
+        canvas.addEventListener("mousedown", startDrawing);
+        canvas.addEventListener("mouseup", stopDrawing);
+        canvas.addEventListener("mousemove", draw);
+    });
+</script>
+<!-- https://www.youtube.com/watch?v=OAc2JnwW724 -->
+</body>
+</html>
