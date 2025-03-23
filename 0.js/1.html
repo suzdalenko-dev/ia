@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Perceptrón Visual</title>
+  <style>
+    canvas {
+      border: 1px solid black;
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+  <h2>Visualización de Perceptrón</h2>
+  <p>Rojo = Bajo (0), Azul = Alto (1)</p>
+  <canvas id="canvas" width="500" height="100"></canvas>
+
+  <script>
+    class Perceptron {
+      constructor() {
+        this.weight = Math.random();
+        this.bias = Math.random();
+        this.learningRate = 0.1;
+      }
+
+      activation(x) {
+        return x > 0.5 ? 1 : 0;
+      }
+
+      predict(input) {
+        let sum = input * this.weight + this.bias;
+        return this.activation(sum);
+      }
+
+      train(inputs, labels, epochs = 20) {
+        for (let i = 0; i < epochs; i++) {
+          for (let j = 0; j < inputs.length; j++) {
+            let prediction = this.predict(inputs[j]);
+            let error = labels[j] - prediction;
+
+            this.weight += error * inputs[j] * this.learningRate;
+            this.bias += error * this.learningRate;
+          }
+        }
+      }
+
+      // Calcula el punto donde input * weight + bias = 0.5 (la "frontera")
+      decisionBoundary() {
+        return (0.5 - this.bias) / this.weight;
+      }
+    }
+
+    // Datos de entrenamiento
+    const trainingInputs = [0.1, 0.2, 0.3, 0.4, 0.5, 0.7, 0.8, 0.9];
+    const trainingLabels = [0, 0, 0, 0, 1, 1, 1, 1];
+
+    // Crear y entrenar perceptrón
+    const perceptron = new Perceptron();
+    perceptron.train(trainingInputs, trainingLabels);
+
+    // Visualización
+    const canvas = document.getElementById("canvas");
+    const ctx = canvas.getContext("2d");
+
+    // Dibujar puntos y frontera
+    function draw() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      // Dibujar puntos
+      for (let i = 0; i < trainingInputs.length; i++) {
+        let x = trainingInputs[i] * canvas.width;
+        ctx.beginPath();
+        ctx.arc(x, 50, 6, 0, Math.PI * 2);
+        ctx.fillStyle = trainingLabels[i] === 0 ? "red" : "blue";
+        ctx.fill();
+      }
+
+      // Dibujar frontera de decisión
+      let boundary = perceptron.decisionBoundary();
+      let boundaryX = boundary * canvas.width;
+
+      ctx.beginPath();
+      ctx.moveTo(boundaryX, 0);
+      ctx.lineTo(boundaryX, canvas.height);
+      ctx.strokeStyle = "green";
+      ctx.lineWidth = 2;
+      ctx.stroke();
+
+      // Mostrar texto
+      ctx.font = "12px sans-serif";
+      ctx.fillStyle = "black";
+      ctx.fillText("Frontera: " + boundary.toFixed(2), boundaryX + 5, 15);
+    }
+
+    draw();
+  </script>
+</body>
+</html>

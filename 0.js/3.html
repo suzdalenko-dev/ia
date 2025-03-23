@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Mini Red Neuronal</title>
+</head>
+<body>
+  <script>
+    class Neurona {
+      constructor(nombre = "") {
+        this.weight = Math.random();
+        this.bias = Math.random();
+        this.learningRate = 0.1;
+        this.nombre = nombre;
+      }
+
+      activation(x) {
+        return x > 0.5 ? 1 : 0; // Función escalón
+      }
+
+      raw(input) {
+        return input * this.weight + this.bias;
+      }
+
+      predict(input) {
+        return this.activation(this.raw(input));
+      }
+
+      train(inputs, labels, epochs = 10) {
+        for (let i = 0; i < epochs; i++) {
+          for (let j = 0; j < inputs.length; j++) {
+            let prediction = this.predict(inputs[j]);
+            let error = labels[j] - prediction;
+            this.weight += error * inputs[j] * this.learningRate;
+            this.bias += error * this.learningRate;
+          }
+        }
+      }
+
+      info() {
+        console.log(`⚙️ ${this.nombre}: weight=${this.weight.toFixed(3)}, bias=${this.bias.toFixed(3)}`);
+      }
+    }
+
+    // Capa oculta
+    let neurona1 = new Neurona("Oculta 1");
+    let neurona2 = new Neurona("Oculta 2");
+
+    // Neurona de salida
+    let salida = new Neurona("Salida");
+
+    // Entrenamiento de la red (por simplicidad, entrenamos la red a mano en orden)
+    let inputs = [0.1, 0.3, 0.5, 0.7, 0.9];
+    let expectedOutputs = [0, 0, 1, 1, 1];
+
+    // Entrenamos las neuronas ocultas
+    neurona1.train(inputs, expectedOutputs);
+    neurona2.train(inputs, expectedOutputs);
+
+    // Preparamos entradas para la neurona de salida (salidas de las ocultas)
+    let hiddenOutputs = inputs.map(input => [
+      neurona1.predict(input),
+      neurona2.predict(input)
+    ]);
+
+    // Ahora entrenamos la neurona de salida con las salidas de la capa oculta
+    salida.train(
+      hiddenOutputs.map(h => h[0] + h[1]), // suma de salidas ocultas como input (simplificado)
+      expectedOutputs
+    );
+
+    // Probamos
+    function predecir(input) {
+      let h1 = neurona1.predict(input);
+      let h2 = neurona2.predict(input);
+      let salidaFinal = salida.predict(h1 + h2); // entrada combinada (simplificado)
+      console.log(`Input: ${input} → h1: ${h1}, h2: ${h2} → Salida: ${salidaFinal}`);
+    }
+
+    // Pruebas
+    predecir(0.2); // debería ser 0
+    predecir(0.6); // debería ser 1
+
+    // Info de la red
+    neurona1.info();
+    neurona2.info();
+    salida.info();
+  </script>
+</body>
+</html>
