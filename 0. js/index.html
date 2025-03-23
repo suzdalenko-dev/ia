@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IA perceptrón - una neurona artificial</title>
+</head>
+
+<body>
+    <script>
+        class Perceptron {
+            constructor() {
+                this.weight = Math.random(); // Peso inicial aleatorio
+                this.bias = Math.random();   // Sesgo inicial aleatorio
+                this.learningRate = 0.1;
+            }
+
+            // Función de activación: devuelve 1 si la predicción es mayor a 0.5, si no 0
+            activation(x) {
+                return x > 0.5 ? 1 : 0;
+            }
+
+            // Predicción
+            predict(input) {
+                let sum = input * this.weight + this.bias;
+                return this.activation(sum);
+            }
+
+            // Entrenamiento
+            train(inputs, labels, epochs = 1) {
+                for (let i = 0; i < epochs; i++) {
+                    for (let j = 0; j < inputs.length; j++) {
+                        let prediction = this.predict(inputs[j]);
+                        let error = labels[j] - prediction;
+
+                        // Actualizamos peso y sesgo
+                        this.weight += error * inputs[j] * this.learningRate;
+                        this.bias += error * this.learningRate;
+                    }
+                }
+            }
+        }
+
+        // Crear y entrenar el perceptrón
+        let perceptron = new Perceptron();
+
+        // Entrenamos con algunos datos: números menores a 0.5 son "bajos" (0), mayores o iguales son "altos" (1)
+        let trainingInputs = [0.1, 0.2, 0.333, 0.4, 0.5, 0.8, 0.9];
+        let trainingLabels = [  0,   0,     0,   0,   1,   1,   1];
+
+        perceptron.train(trainingInputs, trainingLabels);
+
+        // Probamos
+        console.log("Predicción para 0.3:", perceptron.predict(0.3)); // Esperado: 0
+        console.log("Predicción para 0.7:", perceptron.predict(0.7)); // Esperado: 1
+
+        console.log("Peso:", perceptron.weight);
+        console.log("Sesgo:", perceptron.bias);
+
+        /*
+            Tu duda en resumen:
+            ¿Para qué sirve todo este código de clase si podríamos simplemente hacer return x > 0.5 ? 1 : 0;?
+
+            Porque el perceptrón no solo evalúa si un número es mayor a 0.5, sino que aprende a ajustar esa frontera (ese "0.5") por sí mismo a partir de los datos.
+            Es decir: no estamos clasificando con una regla fija, estamos dejando que la IA aprenda la mejor regla sol
+        
+        
+
+            
+        
+        */
+
+    </script>
+</body>
+</html>
