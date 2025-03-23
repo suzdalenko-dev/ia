@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Red Neuronal con Función Sigmoide</title>
+</head>
+<body>
+  <script>
+    // Neurona simple con sigmoid
+    class Neurona {
+      constructor(nombre = "") {
+        this.weight = Math.random();
+        this.bias = Math.random();
+        this.learningRate = 0.1;
+        this.nombre = nombre;
+      }
+
+      // Función sigmoide
+      activation(x) {
+        return 1 / (1 + Math.exp(-x));
+      }
+
+      raw(input) {
+        return input * this.weight + this.bias;
+      }
+
+      predict(input) {
+        return this.activation(this.raw(input));
+      }
+
+      train(inputs, labels, epochs = 10) {
+        for (let i = 0; i < epochs; i++) {
+          for (let j = 0; j < inputs.length; j++) {
+            let output = this.predict(inputs[j]);
+            let error = labels[j] - output;
+            let gradient = output * (1 - output); // derivada de sigmoide
+            this.weight += error * gradient * inputs[j] * this.learningRate;
+            this.bias += error * gradient * this.learningRate;
+          }
+        }
+      }
+
+      info() {
+        console.log(`⚙️ ${this.nombre}: weight=${this.weight.toFixed(3)}, bias=${this.bias.toFixed(3)}`);
+      }
+    }
+
+    // Neurona de salida con múltiples entradas
+    class NeuronaSalida {
+      constructor(numEntradas) {
+        this.weights = Array.from({ length: numEntradas }, () => Math.random());
+        this.bias = Math.random();
+        this.learningRate = 0.1;
+      }
+
+      activation(x) {
+        return 1 / (1 + Math.exp(-x));
+      }
+
+      predict(hiddenOutputs) {
+        let sum = hiddenOutputs.reduce((acc, h, i) => acc + h * this.weights[i], 0) + this.bias;
+        return this.activation(sum);
+      }
+
+      train(hiddenOutputsList, labels, epochs = 10) {
+        for (let epoch = 0; epoch < epochs; epoch++) {
+          for (let i = 0; i < hiddenOutputsList.length; i++) {
+            let output = this.predict(hiddenOutputsList[i]);
+            let error = labels[i] - output;
+            let gradient = output * (1 - output); // derivada de sigmoide
+
+            for (let j = 0; j < this.weights.length; j++) {
+              this.weights[j] += error * gradient * hiddenOutputsList[i][j] * this.learningRate;
+            }
+            this.bias += error * gradient * this.learningRate;
+          }
+        }
+      }
+
+      info() {
+        console.log("⚙️ Neurona de salida:");
+        console.log("  Pesos:", this.weights.map(w => w.toFixed(3)).join(", "));
+        console.log("  Bias:", this.bias.toFixed(3));
+      }
+    }
+
+    // Datos
+    const inputs = [0.1, 0.3, 0.4, 0.5, 0.7, 0.9];
+    const labels = [  0,   0,   0,   1,   1,   1];
+
+    // Capa oculta con 3 neuronas
+    const oculta1 = new Neurona("Oculta 1");
+    const oculta2 = new Neurona("Oculta 2");
+    const oculta3 = new Neurona("Oculta 3");
+
+    // Entrenamos capa oculta
+    oculta1.train(inputs, labels, 1000);
+    oculta2.train(inputs, labels, 1000);
+    oculta3.train(inputs, labels, 1000);
+
+    // Obtenemos salidas de la capa oculta
+    const hiddenOutputs = inputs.map(x => [
+      oculta1.predict(x),
+      oculta2.predict(x),
+      oculta3.predict(x)
+    ]);
+
+    // Neurona de salida
+    const salida = new NeuronaSalida(3);
+    salida.train(hiddenOutputs, labels, 1000);
+
+    // Función de prueba
+    function predecir(x) {
+      const h1 = oculta1.predict(x);
+      const h2 = oculta2.predict(x);
+      const h3 = oculta3.predict(x);
+      const output = salida.predict([h1, h2, h3]);
+      const clasificacion = output > 0.5 ? 1 : 0;
+
+      console.log(`🧪 Input: ${x.toFixed(2)} → Oculta: [${h1.toFixed(2)}, ${h2.toFixed(2)}, ${h3.toFixed(2)}] → Salida: ${clasificacion} (confianza: ${output.toFixed(3)})`);
+    }
+
+    // Pruebas
+    predecir(0.2); // debería dar 0
+    predecir(0.6); // debería dar 1
+    predecir(0.45); // entre medio, a ver cómo responde
+
+    // Mostrar pesos y sesgos
+    oculta1.info();
+    oculta2.info();
+    oculta3.info();
+    salida.info();
+  </script>
+</body>
+</html>
