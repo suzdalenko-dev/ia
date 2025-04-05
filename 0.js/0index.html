@@ -8,6 +8,7 @@
 </head>
 
 <body>
+    <p id="response"></p>
     <script>
         class Perceptron {
             constructor() {
@@ -28,7 +29,7 @@
             }
 
             // Entrenamiento
-            train(inputs, labels, epochs = 1) {
+            train(inputs, labels, epochs = 200) {
                 for (let i = 0; i < epochs; i++) {
                     for (let j = 0; j < inputs.length; j++) {
                         let prediction = this.predict(inputs[j]);
@@ -58,18 +59,11 @@
         console.log("Peso:", perceptron.weight);
         console.log("Sesgo:", perceptron.bias);
 
-        /*
-            Tu duda en resumen:
-            ¿Para qué sirve todo este código de clase si podríamos simplemente hacer return x > 0.5 ? 1 : 0;?
-
-            Porque el perceptrón no solo evalúa si un número es mayor a 0.5, sino que aprende a ajustar esa frontera (ese "0.5") por sí mismo a partir de los datos.
-            Es decir: no estamos clasificando con una regla fija, estamos dejando que la IA aprenda la mejor regla sol
-        
-        
-
-            
-        
-        */
+        // Mostrar resultados en el HTML
+        document.getElementById("response").innerHTML = `Predicción para 0.3: ${perceptron.predict(0.3)}<br>` +
+            `Predicción para 0.7: ${perceptron.predict(0.7)}<br>` +
+            `Peso: ${perceptron.weight}<br>` +
+            `Sesgo: ${perceptron.bias}`;
 
     </script>
 </body>
