@@ -1,98 +1,167 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Perceptrón Visual</title>
-  <style>
-    canvas {
-      border: 1px solid black;
-      margin-top: 20px;
-    }
-  </style>
+  <title>Red Neuronal Multicapa Binaria</title>
 </head>
 <body>
-  <h2>Visualización de Perceptrón</h2>
-  <p>Rojo = Bajo (0), Azul = Alto (1)</p>
-  <canvas id="canvas" width="500" height="100"></canvas>
-
+  <p id="result"></p>
   <script>
-    class Perceptron {
-      constructor() {
+    let infoLog = '';
+    // Neurona individual con función sigmoide
+    class Neurona {
+      constructor(nombre = "") {
         this.weight = Math.random();
+        this.bias = Math.random();
+        this.learningRate = 0.1;
+        this.nombre = nombre;
+      }
+
+      activation(x) {
+        return 1 / (1 + Math.exp(-x));
+      }
+
+      raw(input) {
+        return input * this.weight + this.bias;
+      }
+
+      predict(input) {
+        return this.activation(this.raw(input));
+      }
+
+      train(inputs, labels, epochs = 10) {
+        for (let i = 0; i < epochs; i++) {
+          for (let j = 0; j < inputs.length; j++) {
+            let output = this.predict(inputs[j]);
+            let error = labels[j] - output;
+            let gradient = output * (1 - output);
+            this.weight += error * gradient * inputs[j] * this.learningRate;
+            this.bias += error * gradient * this.learningRate;
+          }
+        }
+      }
+
+      info() {
+        console.log(`⚙️ ${this.nombre}: weight=${this.weight.toFixed(3)}, bias=${this.bias.toFixed(3)}`);
+      }
+    }
+
+    class NeuronaSalida {
+      constructor(numEntradas) {
+        this.weights = Array.from({ length: numEntradas }, () => Math.random());
         this.bias = Math.random();
         this.learningRate = 0.1;
       }
 
       activation(x) {
-        return x > 0.5 ? 1 : 0;
+        return 1 / (1 + Math.exp(-x));
       }
 
-      predict(input) {
-        let sum = input * this.weight + this.bias;
+      predict(hiddenOutputs) {
+        let sum = hiddenOutputs.reduce((acc, h, i) => acc + h * this.weights[i], 0) + this.bias;
         return this.activation(sum);
       }
 
-      train(inputs, labels, epochs = 20) {
-        for (let i = 0; i < epochs; i++) {
-          for (let j = 0; j < inputs.length; j++) {
-            let prediction = this.predict(inputs[j]);
-            let error = labels[j] - prediction;
-
-            this.weight += error * inputs[j] * this.learningRate;
-            this.bias += error * this.learningRate;
+      train(hiddenOutputsList, labels, epochs = 10) {
+        for (let epoch = 0; epoch < epochs; epoch++) {
+          for (let i = 0; i < hiddenOutputsList.length; i++) {
+            let output = this.predict(hiddenOutputsList[i]);
+            let error = labels[i] - output;
+            let gradient = output * (1 - output);
+            for (let j = 0; j < this.weights.length; j++) {
+              this.weights[j] += error * gradient * hiddenOutputsList[i][j] * this.learningRate;
+            }
+            this.bias += error * gradient * this.learningRate;
           }
         }
       }
 
-      // Calcula el punto donde input * weight + bias = 0.5 (la "frontera")
-      decisionBoundary() {
-        return (0.5 - this.bias) / this.weight;
+      info() {
+        console.log("⚙️ Neurona de salida:");
+        console.log("  Pesos:", this.weights.map(w => w.toFixed(3)).join(", "));
+        console.log("  Bias:", this.bias.toFixed(3));
       }
     }
 
-    // Datos de entrenamiento
-    const trainingInputs = [0.1, 0.2, 0.3, 0.4, 0.5, 0.7, 0.8, 0.9];
-    const trainingLabels = [0, 0, 0, 0, 1, 1, 1, 1];
+    // Datos de entrada y etiquetas
+    const inputs = [
+      [0, 0, 0],
+      [0, 0, 1],
+      [0, 1, 0],
+      [1, 0, 0],
+      [1, 1, 0],
+      [1, 1, 1]
+    ];
+    const labels = [0, 0, 0, 1, 1, 1];
 
-    // Crear y entrenar perceptrón
-    const perceptron = new Perceptron();
-    perceptron.train(trainingInputs, trainingLabels);
+    console.log("📥 Datos de entrenamiento:");
+    inputs.forEach((input, i) => {
+      console.log(`  Input: [${input.join(", ")}] → Label: ${labels[i]}`);
+    });
 
-    // Visualización
-    const canvas = document.getElementById("canvas");
-    const ctx = canvas.getContext("2d");
+    // Capa oculta con 3 neuronas (una por cada bit de entrada)
+    const oculta1 = new Neurona("Oculta 1");
+    const oculta2 = new Neurona("Oculta 2");
+    const oculta3 = new Neurona("Oculta 3");
 
-    // Dibujar puntos y frontera
-    function draw() {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
+    const entradasPorNeurona = [
+      inputs.map(i => i[0]),
+      inputs.map(i => i[1]),
+      inputs.map(i => i[2])
+    ];
 
-      // Dibujar puntos
-      for (let i = 0; i < trainingInputs.length; i++) {
-        let x = trainingInputs[i] * canvas.width;
-        ctx.beginPath();
-        ctx.arc(x, 50, 6, 0, Math.PI * 2);
-        ctx.fillStyle = trainingLabels[i] === 0 ? "red" : "blue";
-        ctx.fill();
-      }
+    oculta1.train(entradasPorNeurona[0], labels, 1000);
+    oculta2.train(entradasPorNeurona[1], labels, 1000);
+    oculta3.train(entradasPorNeurona[2], labels, 1000);
 
-      // Dibujar frontera de decisión
-      let boundary = perceptron.decisionBoundary();
-      let boundaryX = boundary * canvas.width;
+    const hiddenOutputs = inputs.map(input => [
+      oculta1.predict(input[0]),
+      oculta2.predict(input[1]),
+      oculta3.predict(input[2])
+    ]);
 
-      ctx.beginPath();
-      ctx.moveTo(boundaryX, 0);
-      ctx.lineTo(boundaryX, canvas.height);
-      ctx.strokeStyle = "green";
-      ctx.lineWidth = 2;
-      ctx.stroke();
+    const salida = new NeuronaSalida(3);
+    salida.train(hiddenOutputs, labels, 1000);
 
-      // Mostrar texto
-      ctx.font = "12px sans-serif";
-      ctx.fillStyle = "black";
-      ctx.fillText("Frontera: " + boundary.toFixed(2), boundaryX + 5, 15);
+    function predecir(binArray) {
+      const h1 = oculta1.predict(binArray[0]);
+      const h2 = oculta2.predict(binArray[1]);
+      const h3 = oculta3.predict(binArray[2]);
+      const output = salida.predict([h1, h2, h3]);
+      const clasificacion = output > 0.5 ? 1 : 0;
+
+      infoLog += `🧪 Input: [${binArray.join(", ")}] → Oculta: [${h1.toFixed(2)}, ${h2.toFixed(2)}, ${h3.toFixed(2)}] → Salida: ${clasificacion} (confianza: ${output.toFixed(3)}) <br>`;
     }
 
-    draw();
+    // Pruebas con nuevos datos
+    console.log("\n🧪 Pruebas con datos no vistos:");
+    predecir([0, 1, 1]); // 011
+    predecir([1, 0, 1]); // 101
+
+    // Info de las neuronas
+    console.log("\nℹ️ Pesos y sesgos finales:");
+    infoLog += "<br>ℹ️ Pesos y sesgos finales:<br>";
+    infoLog += `⚙️ ${oculta1.nombre}: weight=${oculta1.weight.toFixed(3)}, bias=${oculta1.bias.toFixed(3)}<br>`;
+    infoLog += `⚙️ ${oculta2.nombre}: weight=${oculta2.weight.toFixed(3)}, bias=${oculta2.bias.toFixed(3)}<br>`;
+    infoLog += `⚙️ ${oculta3.nombre}: weight=${oculta3.weight.toFixed(3)}, bias=${oculta3.bias.toFixed(3)}<br>`;
+    infoLog += `⚙️ Neurona de salida: ${salida.weights.map(w => w.toFixed(3)).join(", ")}, bias=${salida.bias.toFixed(3)}<br>`;
+    oculta1.info();
+    oculta2.info();
+    oculta3.info();
+    salida.info();
+
+    document.getElementById("result").innerHTML = `
+      📥 Datos de entrenamiento:<br>
+      Input: [0, 0, 0] → resultado: 0<br>
+      Input: [0, 0, 1] → resultado: 0<br>
+      Input: [0, 1, 0] → resultado: 0<br>
+      Input: [1, 0, 0] → resultado: 1<br>
+      Input: [1, 1, 0] → resultado: 1<br> 
+      Input: [1, 1, 1] → resultado: 1<br><br>
+
+      🧪 Pruebas con datos no vistos:<br>
+      ${infoLog}<br><br>
+      `;
   </script>
 </body>
 </html>
