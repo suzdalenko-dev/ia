@@ -10,13 +10,17 @@
     <script>
         class Perceptron {
             constructor() {
-                this.weight = Math.random(); // Peso inicial aleatorio
-                this.bias = Math.random();   // Sesgo inicial aleatorio
+                this.weight = 3; // Math.random(); // Peso inicial aleatorio
+                this.bias   = 2; // Math.random();   // Sesgo inicial aleatorio
                 this.learningRate = 0.1;
+
+                console.log(this.weight, this.bias)
             }
 
             // Función de activación: devuelve 1 si la predicción es mayor a 0.5, si no 0
             activation(x) {
+                let sigmoid = 1 / (1 + Math.exp(-x));
+                return sigmoid >= 0.5 ? 1 : 0;
                 return x > 0.5 ? 1 : 0;
             }
 
@@ -27,7 +31,7 @@
             }
 
             // Entrenamiento
-            train(inputs, labels, epochs = 200) {
+            train(inputs, labels, epochs = 10) {
                 for (let i = 0; i < epochs; i++) {
                     for (let j = 0; j < inputs.length; j++) {
                         let prediction = this.predict(inputs[j]);
@@ -35,24 +39,27 @@
 
                         // Actualizamos peso y sesgo
                         this.weight += error * inputs[j] * this.learningRate;
-                        this.bias += error * this.learningRate;
+                        this.bias += error * this.learningRate;               
+                        
+                        
+                        console.log(`j=${j} IN=${inputs[j]} error=${error} prediction=${prediction}  weight=${this.weight}  bias=${this.bias} `)
                     }
                 }
             }
         }
 
-        // Crear y entrenar el perceptrón
         let perceptron = new Perceptron();
-
-        // Entrenamos con algunos datos: números menores a 0.5 son "bajos" (0), mayores o iguales son "altos" (1)
         let trainingInputs = [0.1, 0.2, 0.333, 0.4, 0.5, 0.8, 0.9];
         let trainingLabels = [  0,   0,     0,   0,   1,   1,   1];
 
         perceptron.train(trainingInputs, trainingLabels);
 
         // Probamos
-        console.log("Predicción para 0.3:", perceptron.predict(0.3)); // Esperado: 0
-        console.log("Predicción para 0.7:", perceptron.predict(0.7)); // Esperado: 1
+        console.log("Predicción para 0.05:", perceptron.predict(0.05)); // Esperado: 0
+        console.log("Predicción para 0.3:", perceptron.predict(0.3));   // Esperado: 0
+        console.log("Predicción para 0.405:", perceptron.predict(0.407));  
+        console.log("Predicción para 0.7:", perceptron.predict(0.7));   // Esperado: 1
+        console.log("Predicción para 0.99:", perceptron.predict(0.99)); // Esperado: 1
 
         console.log("Peso:", perceptron.weight);
         console.log("Sesgo:", perceptron.bias);
