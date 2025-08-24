@@ -5,31 +5,7 @@
 
 ---
 
-## 🧭 Cómo usar este plan
-
-- **Estructura por tema**: *Qué es → Para qué sirve → Cómo estudiarlo → Pitfalls → Entregables → Recursos → Cómo lo usarás en proyectos*.
-- **Tiempo**: 6–10 h/semana. Cada semana tiene objetivos concretos.
-- **Repositorio base** (recomendado):
-  ```text
-  project/
-    data/            # raw/processed/interim/external
-    notebooks/
-    src/
-    models/
-    api/
-    reports/
-    docker/
-    .env.example
-    requirements.txt / pyproject.toml
-    Makefile
-  ```
-- **Workflow**: (1) Leer, (2) Reproducir, (3) Re‑implementar sin mirar, (4) Aplicar a tus datos, (5) Documentar.
-
----
-
 # A) Álgebra, Cálculo y Probabilidad “mínimas” para IA (Semana 1.5)
-
-> Inserta esta **Semana 1.5** entre tus Semanas 1 y 2. Úsala también como **ficha de consulta** todo el año.
 
 ## 1) Álgebra lineal esencial
 
