@@ -1,403 +1,434 @@
-# Calendario IA 12 Meses + Predicción de Compras
+# 📚 Calendario IA 12 Meses + Predicción de Compras (Versión Detallada)
 
-**📆 Calendario de aprendizaje en IA (12 meses)**  
-Pensado para dev full‑stack (**HTML/JS/PHP/Java/Python/Kotlin/Android/SQL/SQLite/Laravel/Symfony/Django/Vue**).  
-Incluye un **módulo práctico de Predicción de Compras e Inventario (Meses 6–7)** con fórmulas, esquema de datos y entregables de producción.
+Este plan está **explicado paso a paso**, con *qué es*, *para qué sirve*, *cómo estudiarlo*, *pitfalls*, *entregables* y *recursos* en cada etapa.  
+Perfil objetivo: dev full‑stack (**HTML/JS/PHP/Java/Python/Kotlin/Android/SQL/SQLite/Laravel/Symfony/Django/Vue**).
 
----
-
-## Tabla de contenido
-- [Cómo usar este plan](#cómo-usar-este-plan)
-- [Mes 1 — Fundamentos prácticos](#mes-1--fundamentos-prácticos)
-- [Mes 2 — ML clásico I](#mes-2--ml-clásico-i)
-- [Mes 3 — ML clásico II + API](#mes-3--ml-clásico-ii--api)
-- [Mes 4 — Deep Learning básico](#mes-4--deep-learning-básico)
-- [Mes 5 — Visión por Computadora (CNN)](#mes-5--visión-por-computadora-cnn)
-- [🔴 Meses 6–7 — Predicción de Compras e Inventario](#-meses-67--predicción-de-compras-e-inventario)
-  - [Mes 6 — Series temporales y forecast de demanda (Parte I)](#mes-6--series-temporales-y-forecast-de-demanda-parte-i)
-  - [Mes 7 — Inventario, compras y optimización (Parte II)](#mes-7--inventario-compras-y-optimización-parte-ii)
-  - [Esquema de datos sugerido](#esquema-de-datos-sugerido)
-  - [Transformaciones clave](#transformaciones-clave)
-  - [Stack recomendado](#stack-recomendado)
-  - [Métricas de negocio](#métricas-de-negocio)
-- [Mes 8 — NLP clásico](#mes-8--nlp-clásico)
-- [Mes 9 — Transformers y RAG](#mes-9--transformers-y-rag)
-- [Mes 10 — Visión avanzada](#mes-10--visión-avanzada)
-- [Mes 11 — IA generativa](#mes-11--ia-generativa)
-- [Mes 12 — MLOps y producción](#mes-12--mlops-y-producción)
-- [📦 Apéndice — Plantillas y snippets útiles](#-apéndice--plantillas-y-snippets-útiles)
-  - [1) Consulta SQL base (demanda diaria por SKU)](#1-consulta-sql-base-demanda-diaria-por-sku)
-  - [2) Pseudocódigo Python: forecast → compra sugerida](#2-pseudocódigo-python-forecast--compra-sugerida)
-  - [3) Priorización ABC/XYZ](#3-priorización-abcxyz)
-  - [4) Métricas de éxito](#4-métricas-de-éxito)
-- [Siguientes pasos](#siguientes-pasos)
+> **Resultado**: portafolio de 10+ proyectos, APIs listas para producción, y un **motor de compras** (forecast → cantidad a pedir) con métricas de negocio.
 
 ---
 
 ## Cómo usar este plan
-- Cada mes tiene **objetivos**, **tareas semanales** y **entregables**.
-- Mantén un **repositorio por proyecto** y documenta con `README` + resultados.
-- **Time‑boxing** sugerido: _6–10 h/semana_. Acelera si puedes.
+- **Estructura de aprendizaje por tema**: *Qué es → Para qué sirve → Cómo estudiarlo (pasos) → Pitfalls → Entregables → Recursos.*  
+- **Tiempo**: 6–10 h/semana. Cada semana tiene objetivos concretos.  
+- **Repositorio**: usa esta estructura base:
+```
+project/
+  data/            # raw/processed/interim/external
+  notebooks/
+  src/
+  models/
+  api/
+  reports/
+  docker/
+  .env.example
+  requirements.txt / pyproject.toml
+  Makefile
+```
+- **Workflow**: (1) Leer, (2) Reproducir, (3) Re-implementar sin mirar, (4) Aplicar a tus datos, (5) Documentar.
 
 ---
 
 ## Mes 1 — Fundamentos prácticos
-**Objetivo:** base matemática y stack de datos en Python.
 
-**Semana 1**
-- Repaso rápido de Python (virtualenv/poetry, tipado, testing).
-- Numpy (vectores, matrices), Pandas (DataFrames, joins, groupby), Matplotlib.
+### Semana 1 — Python científico y entorno
+**Qué es**: base de Python para datos (entornos, paquetes, tipado, testing).  
+**Para qué sirve**: reproducibilidad, calidad, facilidad para desplegar.  
+**Cómo estudiarlo**:
+1) Crea entorno (`venv`/`conda`/`poetry`) y *Makefile* con tareas (`make setup`, `make test`).  
+2) Domina `numpy` (arrays, broadcasting) y `pandas` (DataFrames, `merge`, `groupby`, `pivot`).  
+3) Visualiza con `matplotlib` (líneas, barras, boxplots) y `plotly` (opcional).
+**Pitfalls**: mezclar versiones de Python; `SettingWithCopy` en pandas; no fijar semillas.  
+**Entregables**: notebook con 10 operaciones `pandas` típicas + script `src/etl.py`.  
+**Recursos**: Documentación oficial de Python, Numpy y Pandas; “Effective Pandas” (Tom Augspurger).
 
-**Semana 2**
-- Álgebra lineal aplicada (producto punto, normas, descomposiciones a nivel intuitivo).
-- Probabilidad y estadística (media/varianza, distribuciones, muestreo, intervalos).
+### Semana 2 — Álgebra/Estadística aplicada
+**Qué es**: conceptos mínimos (vectores, matrices, derivadas, media, varianza, percentiles).  
+**Para qué sirve**: entender *loss/gradientes* y cómo evaluar modelos.  
+**Cómo estudiarlo**: implementa a mano media/varianza; calcula z‑scores; deriva MSE respecto a w.  
+**Pitfalls**: confundir población vs muestra (usa `ddof=1` para std muestral).  
+**Entregables**: notebook con medidas de tendencia/dispersion + gráfico de distribución.  
+**Recursos**: “Mathematics for ML” (capítulos intro); Khan Academy (probabilidad).
 
-**Semana 3**
-- EDA (análisis exploratorio) sobre dataset público.
-- Limpieza de datos, valores faltantes, outliers.
+### Semana 3 — EDA y limpieza
+**Qué es**: *Exploratory Data Analysis* para conocer datos antes de modelar.  
+**Para qué sirve**: descubrir *outliers*, *missing*, *leakage*, estacionalidad.  
+**Cómo**: perfiles (`describe`, `info`), IQR y Z‑score para outliers, imputación (media/mediana/forward‑fill).  
+**Pitfalls**: imputar objetivos; eliminar filas sin entender el negocio.  
+**Entregables**: reporte EDA (notebook) + checklist de calidad de datos.  
+**Recursos**: “Practical Statistics for Data Scientists”, Pandas Profiling (ydata-profiling).
 
-**Semana 4**
-- **Entregable:** notebook EDA + dashboard simple (Streamlit) con KPIs.
-- Publica un post corto con hallazgos.
-
-**Entregables del mes:** 1 notebook EDA, 1 mini dashboard.
+### Semana 4 — Dashboard inicial
+**Qué es**: panel con KPIs y gráficos.  
+**Para qué sirve**: comunicar hallazgos y validar con stakeholders.  
+**Cómo**: Streamlit con tres vistas (resumen, tendencias, detalle por categoría).  
+**Entregables**: app Streamlit + README con decisiones.  
+**Recursos**: docs de Streamlit; “Storytelling with Data” (Cole Nussbaumer).
 
 ---
 
 ## Mes 2 — ML clásico I
-**Objetivo:** dominar tareas y métricas base.
 
-**Semana 1**
-- Conceptos: supervisado vs no supervisado; train/valid/test; leakage.
-- Pipelines y escalado de features.
+### Semana 1 — Tareas y *pipelines*
+**Qué es**: ML supervisado (regresión/clasificación) y no supervisado (clustering). *Pipeline* = preprocesamiento + modelo.  
+**Para qué**: evitar *data leakage* y tener procesos repetibles.  
+**Cómo**: `sklearn.Pipeline` con escalado (`StandardScaler`) + modelo; *split* `train/test` temporal si hay fechas.  
+**Pitfalls**: escalar con todo el dataset; barajar datos temporales.  
+**Entregables**: notebook con pipeline y validación inicial.  
+**Recursos**: docs scikit‑learn (User Guide → Pipeline & Model Evaluation).
 
-**Semana 2**
-- Regresión lineal/ridge/lasso; evaluación: MAE, RMSE, MAPE.
+### Semana 2 — Regresión
+**Qué es**: predecir valores numéricos (lineal, ridge, lasso).  
+**Para qué**: precios, tiempos, demanda agregada.  
+**Cómo**: evalúa con **MAE**, **RMSE**, **MAPE**; compara L1 vs L2; curvas de aprendizaje.  
+**Pitfalls**: multicolinealidad; usar R² en series temporales puras.  
+**Entregables**: benchmark de 3 modelos + análisis de residuos.  
+**Recursos**: Géron “Hands‑On ML”, capítulos de regresión.
 
-**Semana 3**
-- Clasificación: logística, árboles, random forest, métricas (accuracy, ROC‑AUC, F1).
+### Semana 3 — Clasificación
+**Qué es**: predecir clases (logística, árboles, random forest).  
+**Para qué**: fraude, churn, spam.  
+**Cómo**: métricas **Precision/Recall/F1**, **ROC‑AUC** (clases balanceadas) y **PR‑AUC** (desbalance).  
+**Pitfalls**: accuracy engañoso; *threshold tuning* ignorado.  
+**Entregables**: matriz de confusión + *report* con umbral óptimo.  
+**Recursos**: “Introduction to Statistical Learning” (ISL).
 
-**Semana 4**
-- Clustering: k‑means, DBSCAN; reducción de dimensionalidad (PCA).
-- **Entregable:** benchmark de 3 modelos por tarea.
-
-**Entregables del mes:** scripts reproducibles + reporte de métricas.
+### Semana 4 — Clustering y reducción
+**Qué es**: **k‑means**, **DBSCAN**; **PCA** para reducir dimensiones.  
+**Para qué**: segmentar clientes, detectar outliers, acelerar modelos.  
+**Cómo**: elige k con codo/silhouette; PCA: varianza explicada.  
+**Pitfalls**: escalar antes de k‑means y PCA; interpretar PCA como “features reales”.  
+**Entregables**: segmentos con perfiles + visualización 2D PCA.  
+**Recursos**: User Guide scikit‑learn (Clustering, Decomposition).
 
 ---
 
 ## Mes 3 — ML clásico II + API
-**Objetivo:** producción mínima viable.
 
-**Semana 1**
-- Feature engineering: variables temporales, categóricas (one‑hot/target), leakage checks.
+### Semana 1 — Feature Engineering
+**Qué es**: crear variables útiles (lag, medias móviles, *one‑hot*, *target encoding*).  
+**Para qué**: mejorar señal del modelo.  
+**Cómo**: *lags* y *rolling* con `pandas`; `CategoricalEncoder`/`TargetEncoder`.  
+**Pitfalls**: fuga por *target encoding* mal validado; usar *future info*.  
+**Entregables**: script `src/features.py` + pruebas unitarias.  
 
-**Semana 2**
-- Validación cruzada; búsqueda de hiperparámetros; importancia de variables.
+### Semana 2 — Validación e *Hyper‑tuning*
+**Qué es**: **K‑Fold**, **TimeSeriesSplit**; **Grid/Random/Bayes Search**.  
+**Para qué**: estimar performance honesta y elegir hiperparámetros.  
+**Cómo**: `TimeSeriesSplit(n_splits=5)`; `RandomizedSearchCV`.  
+**Pitfalls**: mezclar validación aleatoria con series temporales.  
+**Entregables**: informe de *tuning* + importancias (Permutation/SHAP).  
 
-**Semana 3**
-- **Proyecto:** clasificador de spam (scikit‑learn).
+### Semana 3 — Proyecto: Spam
+**Qué es**: clasificador textual con TF‑IDF + LogReg/LinearSVM.  
+**Para qué**: detectar spam/soporte automatizado.  
+**Cómo**: `TfidfVectorizer` (word/char n‑grams), normaliza y regulariza.  
+**Entregables**: notebook + `src/train.py` + `models/`.  
 
-**Semana 4**
-- Exponer modelo: **Django REST** o **FastAPI** (Python) y alternativa **Laravel** (PHP).
-- Contenerizar con Docker.
-
-**Entregables del mes:** API funcional + imagen Docker.
+### Semana 4 — API y Docker
+**Qué es**: servir modelos vía **FastAPI/Django REST**; empaquetar con Docker.  
+**Para qué**: consumo desde Vue/Android/otros servicios.  
+**Cómo**: endpoint `/predict`, validación con Pydantic, healthcheck; `Dockerfile` multi‑stage.  
+**Pitfalls**: no fijar versiones; falta de *timeout* y *rate‑limit*.  
+**Entregables**: API funcional + imagen Docker + README.
 
 ---
 
 ## Mes 4 — Deep Learning básico
-**Objetivo:** redes feed‑forward y práctica con Keras/PyTorch.
 
-**Semana 1**
-- Teoría: perceptrón, activaciones, pérdida, optimizadores, regularización.
+### Semana 1 — Redes y entrenamiento
+**Qué es**: MLP (capas densas), **backprop**, funciones de activación (ReLU, GELU), pérdidas (MSE, CE), optimizadores (SGD, Adam).  
+**Para qué**: aprender representaciones no lineales.  
+**Cómo**: Keras: `Model.fit` con `callbacks` (EarlyStopping, ReduceLROnPlateau).  
+**Pitfalls**: overfitting → usa dropout/L2/early stopping.  
+**Entregables**: MLP MNIST con >98% accuracy validación.
 
-**Semana 2**
-- MLP para MNIST/Fashion‑MNIST. Early stopping y data augmentation simple.
+### Semana 2 — Regularización y *Augmentation*
+**Qué es**: Dropout, L1/L2, BatchNorm; *augmentation* (ruido, flips).  
+**Para qué**: generalización.  
+**Cómo**: compara runs con/ sin regularización (MLflow).  
+**Entregables**: informe comparativo + curvas loss/accuracy.
 
-**Semana 3**
-- PyTorch vs Keras; loops de entrenamiento; checkpoints.
+### Semana 3 — PyTorch vs Keras
+**Qué es**: dos *frameworks* líderes.  
+**Para qué**: elegir según preferencia/ecosistema.  
+**Cómo**: re‑implementa el mismo MLP en ambos.  
+**Entregables**: dos scripts de entrenamiento equivalentes.
 
-**Semana 4**
-- Experimentos con MLflow; comparación de runs.
-
-**Entregables del mes:** notebook + reporte comparativo + tracking con MLflow.
+### Semana 4 — *Experiment tracking*
+**Qué es**: registrar hiperparámetros/artefactos (**MLflow**).  
+**Para qué**: reproducibilidad, auditoría.  
+**Cómo**: `mlflow.sklearn.log_model`, `mlflow.log_params/metrics`.  
+**Entregables**: 5+ ejecuciones registradas.
 
 ---
 
 ## Mes 5 — Visión por Computadora (CNN)
-**Objetivo:** transfer learning y despliegue móvil.
 
-**Semana 1**
-- CNNs (convolución, pooling), fine‑tuning con ResNet/MobileNet.
+### Semana 1 — Convoluciones y *Transfer Learning*
+**Qué es**: CNN (conv, stride, padding, pooling); **transfer learning** con ResNet/MobileNet.  
+**Para qué**: clasificar/detectar con pocos datos.  
+**Cómo**: congelar capas, re‑entrenar *head*.  
+**Pitfalls**: *overfitting* sin augmentation; LR muy alta.  
+**Entregables**: clasificador con F1>0.9 en tu dataset.
 
-**Semana 2**
-- **Proyecto:** clasificador de imágenes (p.ej., defectos de producto).
+### Semana 2 — Proyecto visión
+**Qué es**: caso aplicado (defectos de producto o clasificación SKU).  
+**Para qué**: calidad y automatización.  
+**Cómo**: dataset balanceado, *stratified split* por clase.  
+**Entregables**: modelo + informe de errores (top‑confusions).
 
-**Semana 3**
-- Exportar a TensorFlow Lite / ONNX.
+### Semana 3 — Exportación
+**Qué es**: **TensorFlow Lite** / **ONNX** / cuantización.  
+**Para qué**: inferencia en móvil/edge.  
+**Cómo**: exporta y mide latencia/precisión.  
+**Entregables**: archivo `.tflite`/`.onnx` + pruebas.
 
-**Semana 4**
-- App Android (Kotlin) con inferencia on‑device (camera → predicción).
-
-**Entregables del mes:** modelo CNN + app Android demo.
+### Semana 4 — App Android
+**Qué es**: inferencia on‑device (Kotlin).  
+**Para qué**: experiencia offline, rápida y privada.  
+**Entregables**: demo cámara → predicción.
 
 ---
 
-## 🔴 Meses 6–7 — Predicción de Compras e Inventario
-Aquí respondes a: **“¿puedo predecir la necesidad y cantidad de compras futuras con mis datos de entradas (compras) y salidas (ventas/consumo)?”**  
-**Sí.** Se trabaja en profundidad en estos 2 meses.
+## 🔴 Meses 6–7 — Predicción de Compras e Inventario (EN DETALLE)
 
-### Mes 6 — Series temporales y forecast de demanda (Parte I)
-**Objetivo:** construir pronósticos por SKU a corto/mediano plazo.
+### Mes 6 — Forecast de demanda (Parte I)
+**Qué es**: **series temporales** con nivel/tendencia/estacionalidad y ruido.  
+**Para qué**: anticipar demanda por SKU para planificar compras/producción.  
+**Cómo estudiarlo**:
+1) **Re‑muestreo** a diario/semanal; completar ceros; *cut‑over* por alta/baja de SKUs.  
+2) Baselines: *naïve* (mañana = hoy), *seasonal‑naïve* (próx. lunes = lunes pasado).  
+3) **ETS (Holt‑Winters)**: captura tendencia/estacionalidad aditiva/multiplicativa.  
+4) **ARIMA/SARIMA/SARIMAX**: modela autocorrelación; `SARIMAX(endog, exog=calendar/promos/precio)`.  
+5) **Validación temporal** (*walk‑forward*): entrena en [t0,t1], predice [t1,t2]; desliza ventana.  
+6) Métricas: **WAPE** (= Σ|y−ŷ| / Σy), **sMAPE**, **MASE** (robusta a escala).  
+**Pitfalls**: mezclar datos de futuro; no separar por SKU; ignorar días cero válidos.  
+**Entregables**: *pipeline* por SKU con backtesting + tablero Vue (serie real vs predicción y error).  
+**Recursos**: `statsmodels` (ETS/ARIMA), “Forecasting: Principles and Practice” (Hyndman).
 
-**Semana 1**
-- Fundamentos de series: nivel, tendencia, estacionalidad, ruido; re‑muestreo diario/semanal.
-- Métricas para forecast: MAE, RMSE, **WAPE**, **sMAPE**, **MASE**.
-- Validación temporal (rolling origin / walk‑forward).
+#### Tabla rápida de Z (nivel de servicio → Z)
+| Servicio | Z aproximado |
+|---|---|
+| 90% | 1.28 |
+| 95% | 1.645 |
+| 97.5% | 1.96 |
+| 99% | 2.33 |
 
-**Semana 2**
-- Baselines: naïve, seasonal‑naïve, media móvil.
-- **Suavizado exponencial** (ETS/Holt‑Winters) para tendencia+estacionalidad.
+### Mes 7 — De forecast a órdenes de compra (Parte II)
+**Qué es**: traducir demanda esperada a **cuándo** y **cuánto** comprar.  
+**Para qué**: minimizar roturas y capital inmovilizado.  
+**Cómo estudiarlo**:
+1) **Demanda intermitente** (muchos ceros): **Croston/SBA/TSB** (frecuencia × tamaño).  
+2) **Lead time**: media y desviación por proveedor (usa `suppliers`); incluye festivos.  
+3) **Safety Stock (SS)** y **ROP**:  
+   - Fijo: `SS = Z * σ_d * sqrt(L)`; `ROP = μ_d * L + SS`.  
+   - Variable: `SS = Z * sqrt( μ_L σ_d² + μ_d² σ_L² )`.  
+4) **Políticas**: (Q,R) cantidad fija/pedido cuando stock < ROP; (s,S) revisar cada *s* días y llevar a *S*.  
+5) **EOQ**: `sqrt(2 K D / h)`; ajusta por **MOQ** y **price breaks**.  
+6) **Priorización ABC/XYZ**: A por valor, X por estabilidad → nivel de servicio alto primero.  
+**Pitfalls**: usar media global para todos; no considerar **on_order/backorders**; ignorar variabilidad del lead time.  
+**Entregables**: microservicio “**Purchase Recommender**”: endpoint `/purchase_suggestions?sku=...` con `next_order_date`, `qty`, `reason`.  
+**Recursos**: libros de *Inventory Control*, notas de Silver/Zaik, material de Hyndman sobre intermitentes.
 
-**Semana 3**
-- **ARIMA/SARIMA/SARIMAX** (con regresores externos: calendario, promos, precio).
-- Selección de órdenes, diagnóstico de residuos.
-
-**Semana 4 — Proyecto**
-- Pipeline por SKU: consolidar **consumo neto** (ventas + consumo interno − devoluciones).
-- Backtesting con ventanas rodantes; comparar ETS vs SARIMA.
-- Dashboard **Vue** (línea de tiempo, error por SKU, mapa de calor por estacionalidad).
-
-**Entregables del mes:** repos de datos + pipeline de forecasting + dashboard.
-
-### Mes 7 — Inventario, compras y optimización (Parte II)
-**Objetivo:** convertir demanda pronosticada en **órdenes de compra** concretas.
-
-**Semana 1 — Demanda intermitente**
-- Si hay muchos ceros: **Croston**, **SBA**, **TSB**; evaluación con sMAPE/WAPE.
-
-**Semana 2 — Políticas de inventario**
-- **Lead time** (promedio y variabilidad), **nivel de servicio** (prob. de stockouts).
-- **Safety stock (SS)** y **reorder point (ROP)**.
-
-**Lead time fijo (L) y demanda ~ N(μ_d, σ_d):**
-$$
-SS = Z \\cdot \\sigma_d \\sqrt{L}
-$$
-$$
-ROP = \\mu_d \\cdot L + SS
-$$
-
-**Lead time variable (\\(\\mu_L, \\sigma_L\\)):**
-$$
-SS = Z \\cdot \\sqrt{\\mu_L\\,\\sigma_d^2 + \\mu_d^2\\,\\sigma_L^2}
-$$
-
-**Semana 3 — Cantidad a ordenar**
-- **EOQ** (Economic Order Quantity):
-$$
-EOQ = \\sqrt{\\tfrac{2KD}{h}}
-$$
-> Donde: **K** = coste por pedido, **D** = demanda anual, **h** = coste de posesión por unidad/año.
-
-- Reglas prácticas: **cobertura objetivo** (semanas) vs capacidad de caja/**MOQ**.
-- Heurística final:
-$$
-Q = \\max\\big( MOQ,\\; TargetStock - OnHand + Backorders - OnOrder \\big)
-$$
-
-**Semana 4 — Sistema de recomendación de compras**
-- Servicio que, por SKU, entregue: **próxima fecha de pedido** y **cantidad sugerida**.
-- Considera calendario (cierres, festivos), presupuesto y **priorización ABC/XYZ**.
-- Exponer API (FastAPI/Django REST o Laravel) + tarea de recalculo diario (cron).
-- Monitor de métricas: roturas, cobertura, rotación, obsolescencia.
-
-**Entregables del mes:** motor de compras + API + panel de control + documentación.
-
-### Esquema de datos sugerido
-```
-purchases(date, sku_id, qty, unit_cost, supplier_id, po_id)
-sales(date, sku_id, qty, price, channel)
-consumption_internal(date, sku_id, qty, reason)
-returns(date, sku_id, qty)
-inventory_snapshot(date, sku_id, on_hand, on_order, backorders)
-suppliers(supplier_id, lead_time_days_avg, lead_time_days_std, MOQ, price_breaks)
-calendar(date, is_holiday, is_month_end, week_of_year, promo_flag)
-```
-
-### Transformaciones clave
-- `demanda_diaria = sales.qty + consumption_internal.qty − returns.qty` (por fecha, sku).
-- Unificar granularidad (rellenar ceros), manejar cortes de catálogo, outliers.
-
-### Stack recomendado
-- **Python:** pandas, statsmodels (ETS/ARIMA), scikit‑learn; opcional: Prophet.
-- **SQL:** vistas materializadas para series por SKU; particiones por fecha.
-- **API:** FastAPI/Django REST o Laravel; **Vue** para dashboards.
-- **Jobs:** cron/Airflow; **tracking:** MLflow; **contenedores:** Docker.
-
-### Métricas de negocio
-- **WAPE** global, roturas (% días con stock=0), cobertura (días), rotación, % obsolescencia.
-- **SLA** de proveedores (cumplimiento de lead time), **fill rate**.
+**Glosario compra/inventario**:  
+- **WAPE/sMAPE/MASE**: errores relativos para comparar SKUs.  
+- **Bullwhip effect**: variabilidad amplificada río arriba; mitígalo con ventanas y *smoothing*.  
+- **Fill rate**: % de demanda atendida sin stockout.  
+- **Coverage**: días de inventario disponibles.
 
 ---
 
 ## Mes 8 — NLP clásico
-**Objetivo:** limpiar, vectorizar y clasificar texto.
 
-**Semana 1**
-- Preprocesamiento: normalización, tokenización, stemming/lematización.
+### Semana 1 — Preprocesamiento
+**Qué es**: normalizar (minúsculas), tokenizar, *stemming/lemmatización*.  
+**Para qué**: preparar texto para modelos.  
+**Cómo**: `nltk/spacy`; limpia HTML, emojis, stopwords (con cuidado).  
+**Pitfalls**: eliminar negaciones (“no”); romper entidades.  
+**Entregables**: script `src/nlp_clean.py`.
 
-**Semana 2**
-- TF‑IDF, n‑grams, embeddings (Word2Vec/GloVe).
+### Semana 2 — Vectorización
+**Qué es**: representar texto como números. **TF‑IDF**, *n‑grams*, **Word2Vec/GloVe**.  
+**Para qué**: alimentar clasificadores o regresores.  
+**Cómo**: `TfidfVectorizer(ngram_range=(1,2))`; compara con embeddings preentrenados.  
+**Entregables**: notebook comparativo.
 
-**Semana 3**
-- Clasificador de sentimientos / intents.
+### Semana 3 — Clasificación de texto
+**Qué es**: intents/sentimientos.  
+**Cómo**: LinearSVC/LogReg con TF‑IDF; evalúa con F1 macro.  
+**Pitfalls**: *data leakage* al construir vocabulario.  
+**Entregables**: modelo + reporte.
 
-**Semana 4**
-- **Entregable:** API de análisis de texto (Django/Laravel) + pruebas unitarias.
+### Semana 4 — API
+**Entregables**: endpoint `/analyze` (Django/Laravel), tests y CI básica.
 
 ---
 
 ## Mes 9 — Transformers y RAG
-**Objetivo:** LLMs aplicados y búsqueda aumentada (RAG).
 
-**Semana 1**
-- Arquitectura Transformer; BERT vs GPT; tokenización subword.
+### Semana 1 — Transformers
+**Qué es**: atención, *positional encoding*, modelos **BERT/GPT**.  
+**Para qué**: SOTA en NLP (QA, clasificación, resumen).  
+**Cómo**: `transformers` (Hugging Face): *tokenizer* → modelo → *pipeline*.  
 
-**Semana 2**
-- Fine‑tuning ligero / LoRA; embeddings y **búsqueda semántica** (FAISS).
+### Semana 2 — LoRA y Embeddings
+**Qué es**: **LoRA** = *fine‑tuning ligero*; **embeddings** = vectores semánticos.  
+**Para qué**: adaptar un LLM barato; búsqueda semántica.  
+**Cómo**: *adapters* con PEFT; FAISS para indexar y buscar.  
 
-**Semana 3**
-- **RAG** sobre PDFs/documentos de negocio; manejo de contexto.
+### Semana 3 — RAG
+**Qué es**: **Retrieval‑Augmented Generation**.  
+**Para qué**: respuestas con tus documentos privados.  
+**Cómo**: *chunking* (512–1024 tokens), top‑k, **re‑ranking**, *prompt templates*.  
+**Pitfalls**: *chunking* muy grande; no manejar fuentes.  
+**Entregables**: chatbot con citas a documentos.
 
-**Semana 4**
-- **Entregable:** chatbot interno (Vue + backend) con fuentes privadas.
+### Semana 4 — Producto
+**Entregables**: servicio RAG (backend) + UI Vue con historial y feedback.
 
 ---
 
 ## Mes 10 — Visión avanzada
-**Objetivo:** detección/segmentación + OCR.
 
-**Semana 1**
-- YOLO/Detectron conceptos; datasets con etiquetas.
+### Semana 1 — Detección/Segmentación
+**Qué es**: **YOLO/Faster R‑CNN/Mask R‑CNN**; métricas **IoU**/**mAP**.  
+**Para qué**: localizar objetos, contar, segmentar.  
+**Cómo**: anotar datos (Label Studio/Roboflow); *train* y evaluar.  
+**Pitfalls**: *class imbalance*; *non‑max suppression* mal ajustado.  
 
-**Semana 2**
-- OCR (Tesseract + postproceso) y pipelines mixtos (CV clásica + DL).
+### Semana 2 — OCR
+**Qué es**: **Tesseract** (+ preprocesado OpenCV); post‑proceso con reglas/LLM.  
+**Para qué**: digitalizar facturas/albaranes.  
+**Entregables**: microservicio OCR con colas (RQ/Celery).
 
-**Semana 3**
-- **Proyecto:** lectura de albaranes/facturas + validaciones.
-
-**Semana 4**
-- **Entregable:** microservicio OCR con colas (RQ/Celery) y dashboard.
+### Semana 3–4 — Proyecto completo
+**Entregables**: pipeline OCR + validaciones + dashboard operativo (errores por campo, tasa de corrección).
 
 ---
 
 ## Mes 11 — IA generativa
-**Objetivo:** texto, imagen y audio.
 
-**Semana 1**
-- LLMs en producción (APIs comerciales o modelos open‑source).
+### Semana 1 — LLMs en producción
+**Qué es**: consumo por API o modelos *open‑source*.  
+**Para qué**: asistentes, resúmenes, extracción, *function calling*.  
+**Cómo**: *prompting* (instrucciones, ejemplos, restricciones), *guardrails*.  
 
-**Semana 2**
-- Imágenes: Stable Diffusion; colas y caché de resultados.
+### Semana 2 — Imágenes
+**Qué es**: **Stable Diffusion** (text‑to‑image).  
+**Para qué**: marketing, prototipos, variantes de imágenes.  
+**Pitfalls**: costes GPU; política de contenido.  
 
-**Semana 3**
-- Audio: Whisper (STT), TTS; UX conversacional.
+### Semana 3 — Audio
+**Qué es**: **Whisper** (STT), TTS.  
+**Para qué**: dictado, bots de voz.  
+**Entregables**: pipeline audio → texto → acción.
 
-**Semana 4**
-- **Entregable:** app full‑stack que combine generación de texto/imagen/audio.
+### Semana 4 — App generativa
+**Entregables**: app full‑stack (Vue + backend) combinando texto/imagen/audio.
 
 ---
 
 ## Mes 12 — MLOps y producción
-**Objetivo:** fiabilidad, escalado, monitoreo.
 
-**Semana 1**
-- Versionado de datos/modelos (DVC/MLflow), artefactos, repos monorepo.
+### Semana 1 — Versionado y datos
+**Qué es**: **DVC/MLflow** para versiones de datos/modelos.  
+**Para qué**: reproducibilidad.  
+**Entregables**: *pipeline* con caché y artefactos.
 
-**Semana 2**
-- CI/CD para modelos; tests de datos (Great Expectations) y de performance.
+### Semana 2 — CI/CD y tests
+**Qué es**: integración y despliegue continuo; **Great Expectations** para tests de datos.  
+**Para qué**: prevenir degradaciones.  
+**Entregables**: workflow CI (lint/test/build/push).
 
-**Semana 3**
-- Observabilidad: drift de datos, monitoreo de métricas y alertas.
+### Semana 3 — Observabilidad y *drift*
+**Qué es**: **drift** de *features* (covariate) o de etiquetas (concept).  
+**Para qué**: detectar cuándo re‑entrenar.  
+**Entregables**: alertas + tablero métricas en producción.
 
-**Semana 4**
-- **Entregable final:** deploy cloud (AWS/GCP/Azure/DigitalOcean) + runbook.
-
----
-
-## 📦 Apéndice — Plantillas y snippets útiles
-
-### 1) Consulta SQL base (demanda diaria por SKU)
-```sql
--- Ventas + consumo interno − devoluciones → demanda neta diaria
-WITH s AS (
-  SELECT date::date AS d, sku_id, SUM(qty) AS q FROM sales GROUP BY 1,2
-), c AS (
-  SELECT date::date AS d, sku_id, SUM(qty) AS q FROM consumption_internal GROUP BY 1,2
-), r AS (
-  SELECT date::date AS d, sku_id, SUM(qty) AS q FROM returns GROUP BY 1,2
-), calendar AS (
-  SELECT generate_series(
-      (SELECT MIN(date) FROM sales)::date,
-      (SELECT MAX(date) FROM sales)::date,
-      interval '1 day'
-  )::date AS d
-)
-SELECT cal.d, skus.sku_id,
-       COALESCE(s.q,0) + COALESCE(c.q,0) - COALESCE(r.q,0) AS demand
-FROM (SELECT DISTINCT sku_id FROM sales) skus
-CROSS JOIN calendar cal
-LEFT JOIN s ON s.d = cal.d AND s.sku_id = skus.sku_id
-LEFT JOIN c ON c.d = cal.d AND c.sku_id = skus.sku_id
-LEFT JOIN r ON r.d = cal.d AND r.sku_id = skus.sku_id
-ORDER BY skus.sku_id, cal.d;
-```
-
-### 2) Pseudocódigo Python: forecast → compra sugerida
-```python
-# Input: serie diaria por SKU (pandas Series), on_hand, on_order, backorders,
-# lead_time_mean (L), lead_time_std, service_level (Z), horizon_dias, MOQ
-
-y = serie_diaria.fillna(0)
-
-# 1) Modelo (elige ETS/ARIMA según CV)
-# Ejemplo con auto_arima (pmdarima)
-from pmdarima import auto_arima
-model = auto_arima(y, seasonal=True, m=7, error_action="ignore", suppress_warnings=True)
-forecast = model.predict(n_periods=horizon_dias)  # demanda esperada próxima ventana
-
-mu_d = y[-90:].mean()            # demanda promedio reciente
-sigma_d = y[-90:].std(ddof=1)    # desviación estándar reciente
-
-# 2) Seguridad y punto de pedido
-import math
-if lead_time_std == 0:
-    SS = service_level * sigma_d * math.sqrt(lead_time_mean)
-else:
-    SS = service_level * math.sqrt(lead_time_mean * (sigma_d**2) + (mu_d**2) * (lead_time_std**2))
-
-ROP = mu_d * lead_time_mean + SS
-
-# 3) Cantidad sugerida (cobertura objetivo = horizon_dias)
-target_stock = forecast.sum() + SS
-Q = max(MOQ, target_stock - on_hand + backorders - on_order)
-```
-
-### 3) Priorización ABC/XYZ
-- **ABC** por valor anual (precio × demanda): A = top 80%, B = 15%, C = 5%.
-- **XYZ** por estabilidad (coef. de variación): X = estable, Y = media, Z = volátil.
-- **Políticas:** A/X con alto servicio y revisiones frecuentes; C/Z con compras puntuales.
-
-### 4) Métricas de éxito
-- **WAPE** global < 15–20% (buen inicio); **sMAPE** por SKU; **fill‑rate** > 95% en A/X.
-- KPI de negocio: ↓ roturas, ↓ capital inmovilizado, ↑ rotación.
+### Semana 4 — *Runbook* y *SLA*
+**Qué es**: manual de operación y objetivos (latencia, error).  
+**Entregables**: deploy cloud + *runbook* + post‑mortem simulado.
 
 ---
 
-## Siguientes pasos
-1. Reúne **12–24 meses** de datos (mínimo 9 si el catálogo rota).  
-2. Ejecuta la **consulta de demanda diaria** y valida outliers.  
-3. Implementa **Mes 6 Semana 4 (backtesting)**.  
-4. Avanza al **Mes 7** para convertir forecast en **órdenes de compra**.
+## Apéndice A — API de Sugerencia de Compras (ejemplo)
+
+**Endpoints**  
+- `GET /health` → ok.  
+- `POST /forecast` → body: `{ sku, horizon_days }` → devuelve serie pronosticada.  
+- `POST /purchase_suggestions` → body: `{ sku, on_hand, on_order, backorders, lead_time_mean, lead_time_std, service_level, moq, budget }` → `{ next_order_date, recommended_qty, reason, coverage_days }`.
+
+**Lógica**  
+1) Construye demanda diaria neta.  
+2) Elige modelo (ETS/SARIMA/Croston) por CV.  
+3) Calcula SS/ROP y **Q** (EOQ/heurística).  
+4) Aplica reglas de presupuesto y **ABC/XYZ**.  
+5) Devuelve explicación de la recomendación (**reason**).
+
+---
+
+## Apéndice B — Checklists útiles
+
+**Calidad de datos (antes de modelar)**  
+- [ ] % de `missing` por columna < 10% (o imputado justificado)  
+- [ ] Outliers explicados/recortados  
+- [ ] Duplicados tratados  
+- [ ] Consistencia de unidades y moneda  
+- [ ] Alineación de fechas y TZ
+
+**Forecast**  
+- [ ] *Walk‑forward* implementado  
+- [ ] Baselines comparados  
+- [ ] Exógenas (calendario/promo/precio) evaluadas  
+- [ ] Métrica negocio (**WAPE**, *fill‑rate*) incluida
+
+**Inventario**  
+- [ ] Lead time por proveedor (media y std)  
+- [ ] Políticas (Q,R) o (s,S) definidas por familia  
+- [ ] Tabla de Z validada con negocio  
+- [ ] Alertas por *stockout* y exceso
+
+---
+
+## Apéndice C — Glosario relámpago (términos clave)
+
+- **Data leakage**: usar información del futuro en entrenamiento; da métricas irreales.  
+- **ROC‑AUC / PR‑AUC**: calidad de ranking de probabilidades; PR‑AUC mejor con clases desbalanceadas.  
+- **PCA**: combinación lineal ortogonal que maximiza varianza; útil para visualización/compresión.  
+- **MLflow**: seguimiento de experimentos y modelos.  
+- **ETS/ARIMA/SARIMA/SARIMAX**: familias de modelos de series (tendencia/estacionalidad/exógenas).  
+- **Croston/SBA/TSB**: métodos para demanda intermitente (estimación de intervalo y tamaño).  
+- **EOQ**: calcula lote económico balanceando coste de pedido y de inventario.  
+- **ABC/XYZ**: priorización por valor (ABC) y variabilidad (XYZ).  
+- **FAISS**: índice para búsqueda de vectores (embeddings).  
+- **RAG**: recuperación + generación, para respuestas basadas en documentos.  
+- **Drift**: cambio en la distribución (covariate) o en la relación X→y (concept).  
+- **Great Expectations**: framework de tests de datos.  
+- **ONNX/TFLite**: formatos/entornos para ejecutar modelos portables y ligeros.
+
+---
+
+## Apéndice D — Recursos de estudio (curado, breve)
+
+- **Libros**: 
+  - “Hands‑On Machine Learning” (Géron) — ML/DL práctico.  
+  - “Forecasting: Principles and Practice” (Hyndman & Athanasopoulos) — forecasting aplicado.  
+  - “Deep Learning” (Goodfellow et al.) — fundamentos teóricos.
+
+- **Docs oficiales**: scikit‑learn, pandas, statsmodels, PyTorch, TensorFlow, MLflow, FastAPI, Hugging Face.
+
+- **Cursos**: 
+  - Machine Learning (Andrew Ng) — fundamentos.  
+  - NLP with Transformers (HF) — práctico.  
+  - MLOps básicos (varios proveedores).
+
+- **Herramientas**: Label Studio (anotación), DVC/MLflow (versionado/seguimiento), Great Expectations (calidad), Airflow (orquestación).
+
+---
+
+## Siguientes pasos inmediatos
+1) Elige un dataset propio del negocio y ejecuta **Mes 1–2** con EDA + 1º modelo.  
+2) Prepara **series por SKU** y aplica **Mes 6** (ETS/SARIMA, backtesting).  
+3) Implementa **Mes 7** para convertir pronósticos en **órdenes** (API + dashboard).  
+4) Documenta decisiones y resultados en el README del proyecto.
 
