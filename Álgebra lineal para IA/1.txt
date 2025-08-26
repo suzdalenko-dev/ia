@@ -1,0 +1,28 @@
+🧮 Álgebra lineal para IA — guía intensiva y práctica
+
+Meta: dominar lo que realmente usarás en IA: proyecciones, mínimos cuadrados, autovalores, SVD, PCA, 
+condición/estabilidad y el mini-cálculo matricial que aparece en ML.
+Entregable: un notebook con PCA desde cero, y mini-proyectos de proyecciones y mínimos cuadrados.
+
+0) Resultados de aprendizaje
+Al terminar podrás:
+Construir PCA por SVD y por eig de la covarianza, explicar EVR y elegir k.
+Resolver 𝐴𝑥≈𝑏
+Ax≈b por normales, QR y SVD; saber cuándo usar cada una.
+Detectar mal condicionamiento y aplicar soluciones estables (escalado, SVD, regularización).
+Usar pseudoinversa, whitening, truncado de SVD (Eckart–Young).
+Derivar y verificar con autograd las identidades de cálculo matricial que verás en ML.
+
+1) Espacios vectoriales, bases y dimensión
+Espacio vectorial 𝑉 (sobre R): cerrado a suma y escalado.
+Base = conjunto LI que genera V. Dimensión = tamaño de una base.
+Rango rank(A) = dim. de la imagen; nulidad = dim. del núcleo.
+Rango-nulidad: si 𝐴∈𝑅𝑚×𝑛A∈Rm×n: rank(𝐴)+nullity(𝐴)=𝑛 rank(A)+nullity(A)=n.
+En IA: pensar tus datos/embeddings como vectores en 𝑅𝑑Rd. Mucho de “reducir dimensión” es elegir otra base (mejor).
+
+0) La idea general (en una frase)
+Un espacio vectorial es un “mundo” donde puedes sumar objetos (vectores) y estirarlos/encogerlos con números,
+y esas operaciones siempre funcionan bien (sin sorpresas). 
+Con eso podemos hablar de direcciones básicas (bases),
+de cuántas direcciones independientes tienes (dimensión) y de cómo describir cualquier vector usando esas direcciones.
+
