@@ -11,9 +11,6 @@ print("Vector v:", v)
 print("Vector w:", w)
 
 
-
-
-
 # --- 3. Suma de vectores ---
 suma = v + w
 print("\n➕ v + w =", suma)

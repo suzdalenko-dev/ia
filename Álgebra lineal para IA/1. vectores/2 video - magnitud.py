@@ -2,7 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 # --- 1. Definir vectores ---
-v = np.array([3, 4])
+v = np.array([3, 4, 23, 34])
 w = np.array([1, 2])
 
 # --- 2. Magnitud (norma) ---

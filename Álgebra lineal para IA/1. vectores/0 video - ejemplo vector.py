@@ -1,3 +1,8 @@
+"""
+ Un vector es una entidad matemática que tiene magnitud y dirección.
+"""
+
+
 import numpy as np
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
