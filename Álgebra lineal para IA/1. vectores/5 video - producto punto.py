@@ -10,8 +10,6 @@ w = np.array([1, 2])
 print("Vector v:", v)
 print("Vector w:", w)
 
-
-
 """
     producto punto (dot product) es una operación entre dos vectores
     que da como resultado un escalar (número).
